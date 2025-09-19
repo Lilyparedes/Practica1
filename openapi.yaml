@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: API Práctica 1 - Lilian Paredes
+  version: 1.0.0
+  description: |
+    API desarrollada con Express y PostgreSQL.
+    Permite registro, login, gestión de usuarios y publicaciones, seguimiento entre usuarios y consulta de mensajes.
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desarrollo
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+
+  /api/auth/signup:
+    post:
+      summary: Registrar un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, emailAddress, secretPass, age]
+              properties:
+                fullName:
+                  type: string
+                emailAddress:
+                  type: string
+                secretPass:
+                  type: string
+                age:
+                  type: integer
+      responses:
+        '201':
+          description: Usuario creado con éxito
+        '400':
+          description: Faltan datos
+        '500':
+          description: Error en el servidor
+
+  /api/auth/signin:
+    post:
+      summary: Iniciar sesión de un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emailAddress, secretPass]
+              properties:
+                emailAddress:
+                  type: string
+                secretPass:
+                  type: string
+      responses:
+        '200':
+          description: Inicio de sesión exitoso (devuelve token JWT)
+        '400':
+          description: Credenciales inválidas
+        '500':
+          description: Error en el servidor
+
+  /api/users/all:
+    get:
+      summary: Obtener todos los usuarios
+      responses:
+        '200':
+          description: Lista de usuarios
+        '500':
+          description: Error en el servidor
+
+  /api/users/profile/{username}:
+    get:
+      summary: Obtener información de un usuario por nombre
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Información del usuario
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error en el servidor
+
+    delete:
+      summary: Eliminar cuenta de usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario eliminado con éxito
+        '403':
+          description: No tienes permiso para eliminar
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error en el servidor
+
+  /api/users/{username}/follow:
+    post:
+      summary: Seguir a un usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario seguido correctamente
+        '404':
+          description: Usuario no encontrado
+        '400':
+          description: Intento inválido (seguir a sí mismo)
+        '500':
+          description: Error en el servidor
+
+    delete:
+      summary: Dejar de seguir a un usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario dejado de seguir correctamente
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error en el servidor
+
+  /api/posts/new:
+    post:
+      summary: Crear un nuevo mensaje
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bodyContent]
+              properties:
+                bodyContent:
+                  type: string
+      responses:
+        '201':
+          description: Mensaje creado correctamente
+        '400':
+          description: Falta contenido
+        '500':
+          description: Error en el servidor
+
+  /api/posts/recent:
+    get:
+      summary: Obtener los últimos 10 mensajes
+      responses:
+        '200':
+          description: Lista de mensajes recientes
+        '500':
+          description: Error en el servidor
+
+  /api/posts/find:
+    get:
+      summary: Buscar mensajes por texto
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultados de búsqueda
+        '400':
+          description: Falta parámetro query
+        '500':
+          description: Error en el servidor
+
+  /api/posts/feed:
+    get:
+      summary: Obtener timeline de los usuarios seguidos
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de mensajes del timeline
+        '500':
+          description: Error en el servidor
