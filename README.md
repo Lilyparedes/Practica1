@@ -19,10 +19,7 @@ Permite registrar usuarios, iniciar sesión, crear mensajes tipo blog, seguir y 
 
 1. Clonar el repositorio:
 
-
-git clone https://github.com/tu-usuario/Practica1.git
-cd Practica1
-
+git clone https://github.com/LilyParedes/Practica1.git
 
 2. Instalar dependencias, ingresa a gitbash y ejecuta:
 
@@ -140,5 +137,6 @@ CREATE TABLE follows (
 3. Crear post → `/api/posts` (envías token en Authorization)
 4. Seguir usuario → `/api/users/{name}/follow`
 5. Consultar timeline → `/api/posts/timeline`
+
 
 
